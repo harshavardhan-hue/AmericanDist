@@ -1,0 +1,11 @@
+node_modules/
+playwright-report/
+test-results/
+allure-results/
+allure-report/
+dist/
+.playwright-mcp/
+home-page.png
+*.png
+*.webm
+*.zip
