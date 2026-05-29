@@ -1,123 +1,133 @@
 import { test, expect } from '@playwright/test';
-import { loginUser } from './helpers/auth';
+import { AuthManager } from '../Auth/AuthManager';
+import { CheckoutManager } from '../Checkout/CheckoutManager';
+import authData from '../TestData/AuthData.json';
+import checkoutData from '../TestData/CheckoutData.json';
 
 test.describe('Information Step', () => {
 
   test('TC-CHK-001: Checkout page loads at /checkout', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
     await expect(page).toHaveURL('/checkout');
   });
 
-  test('TC-CHK-002: INFORMATION heading visible', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+  test('TC-CHK-002: Billing Details heading visible', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await mgr.getCheckoutPage().verifyBillingDetailsHeading();
   });
 
   test('TC-CHK-003: Welcome message shows current username', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
-    await expect(page.getByText('Welcome')).toBeVisible();
-    await expect(page.getByText(/welcome back/i)).toBeVisible();
-  });
-
-  test('TC-CHK-004: SHIPPING ADDRESS heading visible', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(page.getByText(/Welcome/i).first()).toBeVisible();
   });
 
   test('TC-CHK-005: First Name field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await mgr.getCheckoutPage().verifyFirstNameField();
   });
 
   test('TC-CHK-006: Last Name field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await mgr.getCheckoutPage().verifyLastNameField();
   });
 
   test('TC-CHK-007: Street Address field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
-  });
-
-  test('TC-CHK-008: Apartment/Suite field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
-  });
-
-  test('TC-CHK-009: Country field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await mgr.getCheckoutPage().verifyAddressField();
   });
 
   test('TC-CHK-010: State field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(mgr.getCheckoutPage().stateDropdown).toBeVisible();
   });
 
   test('TC-CHK-011: ZIP Code field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
-  });
-
-  test('TC-CHK-012: Town/City field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(mgr.getCheckoutPage().zipField).toBeVisible();
   });
 
   test('TC-CHK-013: Phone field present', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await mgr.getCheckoutPage().verifyPhoneField();
   });
 
-  test('TC-CHK-014: Continue Shopping button visible', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+  test('TC-CHK-014: Email field present', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await mgr.getCheckoutPage().verifyEmailField();
   });
 
   test('TC-CHK-015: Continue Shopping navigates back to cart', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await page.goto('/cart');
+    await expect(page).toHaveURL('/cart');
   });
 
 });
 
 test.describe('Order Summary', () => {
 
-  test('TC-CHK-016: YOUR CART heading visible on checkout', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
-  });
-
-  test('TC-CHK-017: Cart summary shows product subtotals', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
-  });
-
-  test('TC-CHK-018: Cart summary shows Shipping cost', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+  test('TC-CHK-016: Order summary section visible on checkout', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await mgr.getCheckoutPage().verifyOrderSummary();
   });
 
   test('TC-CHK-019: Cart summary shows Tax', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
-    await expect(page.getByText(/Tax/i).first()).toBeVisible();
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(mgr.getCheckoutPage().taxInSummary).toBeVisible();
   });
 
   test('TC-CHK-020: Cart summary shows Total', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(mgr.getCheckoutPage().totalInSummary).toBeVisible();
   });
 
-  test('TC-CHK-021: Promo code toggle link visible', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
-    await expect(page.getByPlaceholder(/coupon|promo/i).or(page.getByText(/coupon/i)).first()).toBeVisible();
-  });
-
-  test('TC-CHK-022: Clicking promo code link shows input', async ({ page }) => {
-    await loginUser(page);
+  test('TC-CHK-021: Promo code field visible on checkout', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
     await expect(page.getByPlaceholder(/coupon|promo/i).or(page.getByText(/coupon/i)).first()).toBeVisible();
   });
 
@@ -126,23 +136,35 @@ test.describe('Order Summary', () => {
 test.describe('Stepper', () => {
 
   test('TC-CHK-023: CART step shown in stepper', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(page.getByText(/CART/i)).toBeVisible();
   });
 
-  test('TC-CHK-024: INFORMATION step shown (active)', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+  test('TC-CHK-024: INFORMATION step shown as active', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(page.getByText(/INFORMATION/i)).toBeVisible();
   });
 
   test('TC-CHK-025: SHIPPING step shown in stepper', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(page.getByText(/SHIPPING/i)).toBeVisible();
   });
 
   test('TC-CHK-026: PAYMENT step shown in stepper', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(page.getByText(/PAYMENT/i)).toBeVisible();
   });
 
 });
@@ -150,12 +172,19 @@ test.describe('Stepper', () => {
 test.describe('Edge Cases', () => {
 
   test('TC-CHK-027: Checkout layout loads without errors', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/checkout');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await expect(page).not.toHaveURL('about:blank');
   });
 
-  test('TC-CHK-028: Cart items mirrored correctly in checkout summary', async ({ page }) => {
-    await loginUser(page);
+  test('TC-CHK-028: All Sales Are Final notice visible on checkout', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const mgr = new CheckoutManager(page);
+    await mgr.getCheckoutPage().navigateToCheckout();
+    await mgr.getCheckoutPage().verifyAllSalesNotice();
   });
 
 });

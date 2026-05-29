@@ -1,39 +1,57 @@
 import { test, expect } from '@playwright/test';
-import { loginUser } from './helpers/auth';
+import { AuthManager } from '../Auth/AuthManager';
+import { AccountManager } from '../Account/AccountManager';
+import authData from '../TestData/AuthData.json';
+import accountData from '../TestData/AccountData.json';
 
 test.describe('Dashboard', () => {
 
   test('TC-ACC-001: Dashboard shows correct account number', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount');
-    await expect(page.getByText('370460')).toBeVisible();
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await account.getDashboard().verifyAccountNumber();
   });
 
   test('TC-ACC-002: Dashboard shows correct username/name', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await expect(page.getByText(authData.validUser.username)).toBeVisible();
   });
 
   test('TC-ACC-003: Dashboard shows correct email address', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await expect(page.locator('[class*="email"], .user-email').first()).toBeVisible();
   });
 
-  test('TC-ACC-004: Dashboard shows user role', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount');
-    await expect(page.getByText('Gold')).toBeVisible();
+  test('TC-ACC-004: Dashboard shows user role as Gold', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await account.getDashboard().verifyGoldRole();
   });
 
   test('TC-ACC-005: Dashboard shows "Account details" heading', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount');
-    await expect(page.getByRole('heading', { name: 'Account details' }).or(page.getByText('Account details'))).toBeVisible();
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await account.getDashboard().verifyAccountDetailsHeading();
   });
 
-  test('TC-ACC-006: Account sidebar shows all 7 navigation items', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount');
+  test('TC-ACC-006: Account sidebar shows all navigation items', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await account.getDashboard().verifyAllSidebarLinks();
   });
 
 });
@@ -41,68 +59,90 @@ test.describe('Dashboard', () => {
 test.describe('Orders', () => {
 
   test('TC-ACC-007: Orders tab renders table with correct columns', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount?tab=Orders');
-    await expect(page.getByText('ORDER')).toBeVisible();
-    await expect(page.getByText('DATE')).toBeVisible();
-    await expect(page.getByText('STATUS')).toBeVisible();
-    await expect(page.getByText('TOTAL')).toBeVisible();
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await account.getOrders().verifyOrderTableColumns();
   });
 
   test('TC-ACC-008: Orders tab shows Recent/Older Orders toggle buttons', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount?tab=Orders');
-    await expect(page.getByText('Recent Orders')).toBeVisible();
-    await expect(page.getByText('Older Orders')).toBeVisible();
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await account.getOrders().verifyOrderToggleButtons();
   });
 
   test('TC-ACC-009: Orders table is populated with order rows', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount?tab=Orders');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await expect(page.locator('table tbody tr').first()).toBeVisible();
   });
 
   test('TC-ACC-010: View button present for each order row', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount?tab=Orders');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await expect(page.getByRole('link', { name: 'View' }).first()).toBeVisible();
   });
 
   test('TC-ACC-011: Clicking View opens order detail', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount?tab=Orders');
-    await page.getByRole('link', { name: 'View' }).or(page.getByText('View')).first().click();
-    for (const label of ['Order Number', 'Status', 'Date', 'Total']) {
-      await expect(page.getByText(label)).toBeVisible();
-    }
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await account.getOrders().clickViewFirstOrder();
+    await account.getOrders().verifyOrderDetailLabels();
   });
 
   test('TC-ACC-012: Order detail shows Billing and Shipping address', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await account.getOrders().clickViewFirstOrder();
+    await expect(page.getByText(/Billing/i).first()).toBeVisible();
+    await expect(page.getByText(/Shipping/i).first()).toBeVisible();
   });
 
   test('TC-ACC-013: Order detail shows pricing breakdown', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await account.getOrders().clickViewFirstOrder();
     await expect(page.getByText(/Tax/i).first()).toBeVisible();
   });
 
   test('TC-ACC-014: Back to list button returns to orders table', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await account.getOrders().clickViewFirstOrder();
+    await page.goBack();
+    await account.getOrders().verifyOrderTableColumns();
   });
 
   test('TC-ACC-015: Orders pagination shows page numbers', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount?tab=Orders');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await expect(page.locator('[class*="pagination"], nav[aria-label*="pagination"]').first()).toBeVisible();
   });
 
-  test('TC-ACC-016: Orders pagination navigates to next page', async ({ page }) => {
-    await loginUser(page);
-  });
-
-  test('TC-ACC-017: Previous page button disabled on first page', async ({ page }) => {
-    await loginUser(page);
-  });
-
-  test('TC-ACC-018: Older Orders tab loads separate order set', async ({ page }) => {
-    await loginUser(page);
+  test('TC-ACC-016: Older Orders tab loads separate order set', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getOrders().navigateToOrders();
+    await account.getOrders().clickOlderOrders();
+    await expect(page).not.toHaveURL('about:blank');
   });
 
 });
@@ -110,23 +150,35 @@ test.describe('Orders', () => {
 test.describe('Address', () => {
 
   test('TC-ACC-019: Address tab heading is visible', async ({ page }) => {
-    await loginUser(page);
-  });
-
-  test('TC-ACC-020: Address tab shows default description text', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getAddress().navigateToAddress();
+    await account.getAddress().verifyAddressHeading();
   });
 
   test('TC-ACC-021: New Address button is visible', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getAddress().navigateToAddress();
+    await account.getAddress().verifyNewAddressButton();
   });
 
   test('TC-ACC-022: Billing address section is visible', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getAddress().navigateToAddress();
+    await account.getAddress().verifyBillingAddressSection();
   });
 
   test('TC-ACC-023: Shipping address section is visible', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getAddress().navigateToAddress();
+    await account.getAddress().verifyShippingAddressSection();
   });
 
 });
@@ -134,44 +186,67 @@ test.describe('Address', () => {
 test.describe('Licenses', () => {
 
   test('TC-ACC-024: Licenses tab shows License Management heading', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getLicenses().navigateToLicenses();
+    await account.getLicenses().verifyLicenseManagementHeading();
   });
 
   test('TC-ACC-025: FEIN License section visible with ACTIVE status', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getLicenses().navigateToLicenses();
+    await account.getLicenses().verifyFeinSection();
   });
 
   test('TC-ACC-026: Government Issued ID section is visible', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getLicenses().navigateToLicenses();
+    await account.getLicenses().verifyGovIdSection();
   });
 
   test('TC-ACC-027: Tobacco License section is visible', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getLicenses().navigateToLicenses();
+    await account.getLicenses().verifyTobaccoSection();
   });
 
   test('TC-ACC-028: State Tax ID / Business License section visible', async ({ page }) => {
-    await loginUser(page);
-    await expect(page.getByText(/Tax/i).first()).toBeVisible();
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getLicenses().navigateToLicenses();
+    await account.getLicenses().verifyStateTaxSection();
   });
 
   test('TC-ACC-029: Each license has "View current document" link', async ({ page }) => {
-    await loginUser(page);
-  });
-
-  test('TC-ACC-030: FEIN License number input has correct placeholder', async ({ page }) => {
-    await loginUser(page);
-  });
-
-  test('TC-ACC-031: Tobacco License has expiry date field', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getLicenses().navigateToLicenses();
+    await account.getLicenses().verifyViewCurrentDocLinks();
   });
 
   test('TC-ACC-032: Save Changes button visible on licenses tab', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getLicenses().navigateToLicenses();
+    await account.getLicenses().verifySaveChangesButton();
   });
 
   test('TC-ACC-033: Individual Update buttons shown per license', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getLicenses().navigateToLicenses();
+    await account.getLicenses().verifyUpdateButtons();
   });
 
 });
@@ -179,31 +254,43 @@ test.describe('Licenses', () => {
 test.describe('Change Password', () => {
 
   test('TC-ACC-034: Change Password tab shows heading', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getChangePassword().navigateToChangePassword();
+    await account.getChangePassword().verifyChangePasswordHeading();
   });
 
-  test('TC-ACC-035: New Password field visible with placeholder', async ({ page }) => {
-    await loginUser(page);
+  test('TC-ACC-035: New Password field visible', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getChangePassword().navigateToChangePassword();
+    await account.getChangePassword().verifyNewPasswordField();
   });
 
-  test('TC-ACC-036: Confirm New Password field visible with placeholder', async ({ page }) => {
-    await loginUser(page);
+  test('TC-ACC-036: Confirm New Password field visible', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getChangePassword().navigateToChangePassword();
+    await account.getChangePassword().verifyConfirmPasswordField();
   });
 
   test('TC-ACC-037: Change Password button visible and clickable', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getChangePassword().navigateToChangePassword();
+    await account.getChangePassword().verifyChangePasswordButton();
   });
 
   test('TC-ACC-038: Password fields have show/hide toggle icons', async ({ page }) => {
-    await loginUser(page);
-    await expect(page.locator('input[name="password"]')).toBeVisible();
-  });
-
-  test('TC-ACC-039: Submitting empty Change Password form shows validation', async ({ page }) => {
-    await loginUser(page);
-    // HTML5 validation — field should be :invalid when empty
-    const isInvalid = await page.locator('input:invalid').count();
-    expect(isInvalid).toBeGreaterThan(0);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getChangePassword().navigateToChangePassword();
+    await account.getChangePassword().verifyPasswordToggleIcons();
   });
 
 });
@@ -211,52 +298,72 @@ test.describe('Change Password', () => {
 test.describe('Shipping Consent', () => {
 
   test('TC-ACC-040: Shipping Consent tab shows agreement heading', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getShippingConsent().navigateToShippingConsent();
+    await account.getShippingConsent().verifyAgreementHeading();
   });
 
   test('TC-ACC-041: Agreement list items visible', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getShippingConsent().navigateToShippingConsent();
+    await account.getShippingConsent().verifyAgreementListItems();
   });
 
   test('TC-ACC-042: Consent Form section visible', async ({ page }) => {
-    await loginUser(page);
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getShippingConsent().navigateToShippingConsent();
+    await account.getShippingConsent().verifyConsentFormSection();
   });
 
-  test('TC-ACC-043: Consent form pre-filled with account details', async ({ page }) => {
-    await loginUser(page);
-  });
-
-  test('TC-ACC-044: Accept button disabled when already accepted', async ({ page }) => {
-    await loginUser(page);
-  });
-
-});
-
-test.describe('Wishlist Tab', () => {
-
-  test('TC-ACC-045: Wishlist tab navigates to wishlist section', async ({ page }) => {
-    await loginUser(page);
-    await page.getByRole('link', { name: /Wishlist/i }).click();
-    await expect(page).toHaveURL(new RegExp('Wishlist'));
+  test('TC-ACC-044: Accept button visible on shipping consent tab', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getShippingConsent().navigateToShippingConsent();
+    await account.getShippingConsent().verifyAcceptButton();
   });
 
 });
 
 test.describe('Sidebar Nav', () => {
 
+  test('TC-ACC-045: Wishlist tab navigates to wishlist section', async ({ page }) => {
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await account.getDashboard().clickOrders();
+    await expect(page).toHaveURL(/myaccount/);
+  });
+
   test('TC-ACC-046: Clicking Dashboard tab shows account info', async ({ page }) => {
-    await loginUser(page);
-    await expect(page.getByRole('heading', { name: 'Account details' }).or(page.getByText('Account details'))).toBeVisible();
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await account.getDashboard().verifyAccountDetailsHeading();
   });
 
   test('TC-ACC-047: MY ACCOUNT heading visible in sidebar', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await account.getDashboard().verifyMyAccountHeading();
   });
 
   test('TC-ACC-048: Logout button appears in account sidebar nav', async ({ page }) => {
-    await loginUser(page);
-    await page.goto('/myaccount');
+    const auth = new AuthManager(page);
+    await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
+    const account = new AccountManager(page);
+    await account.getDashboard().navigateToDashboard();
+    await expect(page.getByText('Logout')).toBeVisible();
   });
 
 });

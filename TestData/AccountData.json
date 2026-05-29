@@ -1,0 +1,8 @@
+{
+  "accountNumber": "370460",
+  "username": "Firefighter",
+  "role": "Gold",
+  "invalidPassword": "WrongPass99",
+  "newPassword": "TestPass@123",
+  "confirmNewPassword": "TestPass@123"
+}

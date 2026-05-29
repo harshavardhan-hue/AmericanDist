@@ -10,6 +10,19 @@
     "rootDir": ".",
     "skipLibCheck": true
   },
-  "include": ["tests/**/*.ts", "playwright.config.ts"],
+  "include": [
+    "tests/**/*.ts",
+    "Auth/**/*.ts",
+    "Account/**/*.ts",
+    "Products/**/*.ts",
+    "Search/**/*.ts",
+    "Cart/**/*.ts",
+    "Checkout/**/*.ts",
+    "Wishlist/**/*.ts",
+    "Navigation/**/*.ts",
+    "StaticPages/**/*.ts",
+    "HomePage/**/*.ts",
+    "playwright.config.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
