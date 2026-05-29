@@ -2,13 +2,16 @@ import { Page, Locator, expect } from '@playwright/test';
 
 export class CartPage {
     page: Page;
-    cartIcon: Locator;
     shoppingCartLabel: Locator;
     cartStepIndicator: Locator;
     informationStep: Locator;
     shippingStep: Locator;
     paymentStep: Locator;
     cartProductRows: Locator;
+    cartProductImages: Locator;
+    removeItemButtons: Locator;
+    quantityMinusButtons: Locator;
+    quantityPlusButtons: Locator;
     cartTotalsHeading: Locator;
     subtotalRow: Locator;
     taxRow: Locator;
@@ -24,25 +27,28 @@ export class CartPage {
 
     constructor(page: Page) {
         this.page = page;
-        this.cartIcon                 = page.getByRole('button', { name: /cart/i }).or(page.locator('[class*="cart-icon"], [class*="shopping-cart"]')).first();
-        this.shoppingCartLabel        = page.getByText('Shopping Cart');
-        this.cartStepIndicator        = page.getByText(/CART/i).first();
-        this.informationStep          = page.getByText(/INFORMATION/i).first();
-        this.shippingStep             = page.getByText(/SHIPPING/i).first();
-        this.paymentStep              = page.getByText(/PAYMENT/i).first();
-        this.cartProductRows          = page.locator('tr.woocommerce-cart-form__cart-item, [class*="cart-item"]');
-        this.cartTotalsHeading        = page.getByText(/CART TOTALS/i).first();
-        this.subtotalRow              = page.getByText(/Subtotal/i).first();
-        this.taxRow                   = page.getByText(/Tax/i).first();
-        this.flatRateOption           = page.getByText(/Flat rate/i).first();
-        this.pickupOption             = page.getByText(/PICKUP/i).first();
-        this.allSalesNotice           = page.getByText(/All Sales Are Final/i).first();
-        this.proceedToCheckoutButton  = page.getByRole('link', { name: /Proceed to Checkout/i }).or(page.getByRole('button', { name: /Proceed to Checkout/i }));
-        this.couponField              = page.getByPlaceholder(/coupon|promo code/i).or(page.locator('input[name="coupon_code"]'));
-        this.applyCouponButton        = page.getByRole('button', { name: /Apply Coupon/i });
-        this.updateCartButton         = page.getByRole('button', { name: /Update Cart/i });
-        this.emptyCartButton          = page.getByRole('link', { name: /Empty Cart/i }).or(page.getByRole('button', { name: /Empty Cart/i }));
-        this.shippingPolicyHeading    = page.getByRole('heading', { name: /Shipping Policy Update/i });
+        this.shoppingCartLabel       = page.getByText('Shopping Cart');
+        this.cartStepIndicator       = page.getByText(/CART/i).first();
+        this.informationStep         = page.getByText(/INFORMATION/i).first();
+        this.shippingStep            = page.getByText(/SHIPPING/i).first();
+        this.paymentStep             = page.getByText(/PAYMENT/i).first();
+        this.cartProductRows         = page.locator('.cart-product-image').first();
+        this.cartProductImages       = page.locator('.cart-product-image img, [class*="cart-product-image"] img');
+        this.removeItemButtons       = page.locator('.cart-page-image-close-bg');
+        this.quantityMinusButtons    = page.locator('.symbol-left, [class*="symbol-left"]');
+        this.quantityPlusButtons     = page.locator('.symbol-right, [class*="symbol-right"]');
+        this.cartTotalsHeading       = page.getByText(/CART TOTALS/i).first();
+        this.subtotalRow             = page.getByText(/Subtotal/i).first();
+        this.taxRow                  = page.getByText(/Tax/i).first();
+        this.flatRateOption          = page.getByText(/Flat rate/i).first();
+        this.pickupOption            = page.getByText(/PICKUP/i).first();
+        this.allSalesNotice          = page.getByText(/All Sales Are Final/i).first();
+        this.proceedToCheckoutButton = page.getByRole('button', { name: /Proceed to Checkout/i }).or(page.getByRole('link', { name: /Proceed to Checkout/i })).first();
+        this.couponField             = page.locator('input[placeholder*="coupon" i], input[name="coupon_code"]').first();
+        this.applyCouponButton       = page.locator('[class*="applyBtn"], button').filter({ hasText: /Apply Coupon|Apply/i }).first();
+        this.updateCartButton        = page.locator('[class*="updateBtn"], button').filter({ hasText: /Update/i }).first();
+        this.emptyCartButton         = page.locator('[class*="emptyBtn"], button').filter({ hasText: /Empty Cart/i }).first();
+        this.shippingPolicyHeading   = page.getByRole('heading', { name: /Shipping Policy Update/i });
     }
 
     async navigateToCart(): Promise<void> {
@@ -62,6 +68,16 @@ export class CartPage {
         await expect(this.informationStep).toBeVisible();
         await expect(this.shippingStep).toBeVisible();
         await expect(this.paymentStep).toBeVisible();
+    }
+
+    async verifyCartProductImages(): Promise<void> {
+        const count = await this.cartProductImages.count();
+        expect(count).toBeGreaterThan(0);
+    }
+
+    async verifyQuantityButtons(): Promise<void> {
+        await expect(this.quantityPlusButtons.first()).toBeVisible();
+        await expect(this.quantityMinusButtons.first()).toBeVisible();
     }
 
     async verifyCartTotalsHeading(): Promise<void> {
@@ -122,6 +138,18 @@ export class CartPage {
 
     async clickUpdateCart(): Promise<void> {
         await this.updateCartButton.click();
+    }
+
+    async clickEmptyCart(): Promise<void> {
+        await this.emptyCartButton.click();
+    }
+
+    async clickPlusQuantity(): Promise<void> {
+        await this.quantityPlusButtons.first().click();
+    }
+
+    async clickMinusQuantity(): Promise<void> {
+        await this.quantityMinusButtons.first().click();
     }
 
     async selectPickupShipping(): Promise<void> {

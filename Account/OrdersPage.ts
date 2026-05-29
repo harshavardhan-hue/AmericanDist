@@ -13,20 +13,22 @@ export class OrdersPage {
     orderDetailStatus: Locator;
     orderDetailDate: Locator;
     orderDetailTotal: Locator;
+    ordersTable: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.orderColumnHeader     = page.getByText('ORDER');
-        this.dateColumnHeader      = page.getByText('DATE');
-        this.statusColumnHeader    = page.getByText('STATUS');
-        this.totalColumnHeader     = page.getByText('TOTAL');
-        this.recentOrdersBtn       = page.getByText('Recent Orders');
-        this.olderOrdersBtn        = page.getByText('Older Orders');
-        this.viewFirstOrderLink    = page.getByRole('link', { name: 'View' }).first();
+        this.orderColumnHeader      = page.getByText('Order Number').or(page.getByText('ORDER')).first();
+        this.dateColumnHeader       = page.getByText('Date').or(page.getByText('DATE')).first();
+        this.statusColumnHeader     = page.getByText('Status').or(page.getByText('STATUS')).first();
+        this.totalColumnHeader      = page.getByText('Total').or(page.getByText('TOTAL')).first();
+        this.recentOrdersBtn        = page.getByText('Recent Orders');
+        this.olderOrdersBtn         = page.getByText('Older Orders');
+        this.viewFirstOrderLink     = page.getByRole('link', { name: /View Details|View/i }).first();
         this.orderDetailOrderNumber = page.getByText('Order Number');
-        this.orderDetailStatus     = page.getByText('Status');
-        this.orderDetailDate       = page.getByText('Date');
-        this.orderDetailTotal      = page.getByText('Total');
+        this.orderDetailStatus      = page.getByText('Status');
+        this.orderDetailDate        = page.getByText('Date');
+        this.orderDetailTotal       = page.getByText('Total');
+        this.ordersTable            = page.locator('table.table-responsive, table, [class*="order"]').first();
     }
 
     async navigateToOrders(): Promise<void> {

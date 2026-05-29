@@ -3,6 +3,7 @@ import { Page, Locator, expect } from '@playwright/test';
 export class CheckoutPage {
     page: Page;
     checkoutHeading: Locator;
+    billingDetailsHeading: Locator;
     firstNameField: Locator;
     lastNameField: Locator;
     companyField: Locator;
@@ -12,41 +13,44 @@ export class CheckoutPage {
     zipField: Locator;
     phoneField: Locator;
     emailField: Locator;
-    flatRateRadio: Locator;
-    pickupRadio: Locator;
+    flatRateOption: Locator;
+    pickupOption: Locator;
     placeOrderButton: Locator;
-    orderSummarySection: Locator;
-    subtotalInSummary: Locator;
-    taxInSummary: Locator;
-    totalInSummary: Locator;
-    billingDetailsHeading: Locator;
-    shippingMethodHeading: Locator;
-    paymentSection: Locator;
+    subtotalRow: Locator;
+    taxRow: Locator;
+    totalRow: Locator;
+    couponField: Locator;
     allSalesNotice: Locator;
+    cartStep: Locator;
+    informationStep: Locator;
+    shippingStep: Locator;
+    paymentStep: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.checkoutHeading       = page.getByRole('heading', { name: /Checkout/i }).first();
-        this.firstNameField        = page.locator('#billing_first_name, input[name="billing_first_name"]');
-        this.lastNameField         = page.locator('#billing_last_name, input[name="billing_last_name"]');
-        this.companyField          = page.locator('#billing_company, input[name="billing_company"]');
-        this.addressField          = page.locator('#billing_address_1, input[name="billing_address_1"]');
-        this.cityField             = page.locator('#billing_city, input[name="billing_city"]');
-        this.stateDropdown         = page.locator('#billing_state, select[name="billing_state"]');
-        this.zipField              = page.locator('#billing_postcode, input[name="billing_postcode"]');
-        this.phoneField            = page.locator('#billing_phone, input[name="billing_phone"]');
-        this.emailField            = page.locator('#billing_email, input[name="billing_email"]');
-        this.flatRateRadio         = page.locator('input[value*="flat_rate"]').or(page.getByText(/Flat rate/i)).first();
-        this.pickupRadio           = page.locator('input[value*="pickup"]').or(page.getByText(/PICKUP/i)).first();
+        this.checkoutHeading       = page.getByText(/Checkout/i).first();
+        this.billingDetailsHeading = page.getByText(/Billing Details/i).or(page.locator('.tp-checkout-bill-form')).first();
+        this.firstNameField        = page.locator('.custom-input[name*="first" i], input.form-control').first();
+        this.lastNameField         = page.locator('.custom-input[name*="last" i], input.form-control').nth(1);
+        this.companyField          = page.locator('.custom-input[name*="company" i], input[placeholder*="company" i]').first();
+        this.addressField          = page.locator('.custom-input[name*="address" i], input[placeholder*="address" i]').first();
+        this.cityField             = page.locator('.custom-input[name*="city" i], input[placeholder*="city" i]').first();
+        this.stateDropdown         = page.locator('select[name*="state" i], .form-select').first();
+        this.zipField              = page.locator('.custom-input[name*="post" i], input[placeholder*="zip" i], input[placeholder*="postal" i]').first();
+        this.phoneField            = page.locator('.custom-input[name*="phone" i], input[placeholder*="phone" i]').first();
+        this.emailField            = page.locator('.custom-input[name*="email" i], input[placeholder*="email" i]').first();
+        this.flatRateOption        = page.getByText(/Flat rate/i).first();
+        this.pickupOption          = page.getByText(/PICKUP/i).first();
         this.placeOrderButton      = page.getByRole('button', { name: /Place Order/i });
-        this.orderSummarySection   = page.getByText(/Order Summary|Your Order/i).first();
-        this.subtotalInSummary     = page.getByText(/Subtotal/i).first();
-        this.taxInSummary          = page.getByText(/Tax/i).first();
-        this.totalInSummary        = page.getByText(/Total/i).first();
-        this.billingDetailsHeading = page.getByText(/Billing Details/i).first();
-        this.shippingMethodHeading = page.getByText(/Shipping Method/i).first();
-        this.paymentSection        = page.getByText(/Payment/i).first();
+        this.subtotalRow           = page.getByText(/Subtotal/i).first();
+        this.taxRow                = page.getByText(/Tax/i).first();
+        this.totalRow              = page.getByText(/Total/i).first();
+        this.couponField           = page.locator('input[placeholder*="coupon" i]').first();
         this.allSalesNotice        = page.getByText(/All Sales Are Final|purchases are final/i).first();
+        this.cartStep              = page.getByText(/CART/i).first();
+        this.informationStep       = page.getByText(/INFORMATION/i).first();
+        this.shippingStep          = page.getByText(/SHIPPING/i).first();
+        this.paymentStep           = page.getByText(/PAYMENT/i).first();
     }
 
     async navigateToCheckout(): Promise<void> {
@@ -82,15 +86,15 @@ export class CheckoutPage {
     }
 
     async verifyShippingMethodSection(): Promise<void> {
-        await expect(this.shippingMethodHeading).toBeVisible();
+        await expect(this.flatRateOption).toBeVisible();
     }
 
     async verifyFlatRateOption(): Promise<void> {
-        await expect(this.flatRateRadio).toBeVisible();
+        await expect(this.flatRateOption).toBeVisible();
     }
 
     async verifyPickupOption(): Promise<void> {
-        await expect(this.pickupRadio).toBeVisible();
+        await expect(this.pickupOption).toBeVisible();
     }
 
     async verifyPlaceOrderButton(): Promise<void> {
@@ -98,16 +102,19 @@ export class CheckoutPage {
     }
 
     async verifyOrderSummary(): Promise<void> {
-        await expect(this.subtotalInSummary).toBeVisible();
-        await expect(this.totalInSummary).toBeVisible();
-    }
-
-    async verifyPaymentSection(): Promise<void> {
-        await expect(this.paymentSection).toBeVisible();
+        await expect(this.subtotalRow).toBeVisible();
+        await expect(this.totalRow).toBeVisible();
     }
 
     async verifyAllSalesNotice(): Promise<void> {
         await expect(this.allSalesNotice).toBeVisible();
+    }
+
+    async verifyCheckoutStepper(): Promise<void> {
+        await expect(this.cartStep).toBeVisible();
+        await expect(this.informationStep).toBeVisible();
+        await expect(this.shippingStep).toBeVisible();
+        await expect(this.paymentStep).toBeVisible();
     }
 
     async fillFirstName(name: string): Promise<void> {
@@ -123,6 +130,6 @@ export class CheckoutPage {
     }
 
     async selectPickupShipping(): Promise<void> {
-        await this.pickupRadio.click();
+        await this.pickupOption.click();
     }
 }

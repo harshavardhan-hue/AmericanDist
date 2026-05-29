@@ -2,33 +2,35 @@ import { Page, Locator, expect } from '@playwright/test';
 
 export class HeaderPage {
     page: Page;
-    logoLink: Locator;
     logoImage: Locator;
+    logoLink: Locator;
     searchInput: Locator;
     cartIcon: Locator;
     wishlistLink: Locator;
-    myAccountLink: Locator;
+    accountIcon: Locator;
     welcomeText: Locator;
     shoppingCartText: Locator;
-    mainNavLinks: Locator;
-    shopLink: Locator;
-    dispensableLink: Locator;
+    joinCommunityButton: Locator;
+    nicotineWarningBanner: Locator;
+    allSalesTicker: Locator;
     needHelpHeading: Locator;
+    categoryLinks: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.logoLink          = page.getByRole('link', { name: 'logo' }).first();
-        this.logoImage         = page.getByAltText('logo').first();
-        this.searchInput       = page.getByPlaceholder('Search for products…');
-        this.cartIcon          = page.getByRole('button', { name: /cart/i }).or(page.locator('[class*="cart-icon"]')).first();
-        this.wishlistLink      = page.getByRole('link', { name: /Wishlist/i });
-        this.myAccountLink     = page.getByRole('link', { name: /My Account|Account/i }).first();
-        this.welcomeText       = page.getByText(/Welcome/i).first();
-        this.shoppingCartText  = page.getByText('Shopping Cart');
-        this.mainNavLinks      = page.locator('nav a, header nav a');
-        this.shopLink          = page.getByRole('link', { name: /^Shop$/i });
-        this.dispensableLink   = page.locator('a[href*="/product-category/"]').first();
-        this.needHelpHeading   = page.getByRole('heading', { name: 'Need Help' });
+        this.logoImage            = page.locator('.logoImage, img[class*="logo"]').first();
+        this.logoLink             = page.locator('a[href="/"]').first();
+        this.searchInput          = page.getByPlaceholder('Search for products…');
+        this.cartIcon             = page.locator('[aria-label="cart"], [class*="cart"] button').first();
+        this.wishlistLink         = page.locator('a[href="/wishlist"]').first();
+        this.accountIcon          = page.locator('[class*="account"], a[href*="myaccount"]').first();
+        this.welcomeText          = page.getByText(/Welcome/i).first();
+        this.shoppingCartText     = page.getByText('Shopping Cart');
+        this.joinCommunityButton  = page.getByText('Join Our Community');
+        this.nicotineWarningBanner = page.getByText('THIS PRODUCT CONTAINS NICOTINE. NICOTINE IS AN ADDICTIVE CHEMICAL.');
+        this.allSalesTicker       = page.getByText(/All Sales Are Final/i).first();
+        this.needHelpHeading      = page.getByRole('heading', { name: 'Need Help' });
+        this.categoryLinks        = page.locator('a[href*="/product-category/"]');
     }
 
     async verifyLogoVisible(): Promise<void> {
@@ -39,7 +41,7 @@ export class HeaderPage {
         await expect(this.searchInput).toBeVisible();
     }
 
-    async verifyCartIconVisible(): Promise<void> {
+    async verifyShoppingCartVisible(): Promise<void> {
         await expect(this.shoppingCartText).toBeVisible();
     }
 
@@ -51,8 +53,25 @@ export class HeaderPage {
         await expect(this.welcomeText).toBeVisible();
     }
 
+    async verifyNicotineWarningBanner(): Promise<void> {
+        await expect(this.nicotineWarningBanner).toBeVisible();
+    }
+
+    async verifyAllSalesTicker(): Promise<void> {
+        await expect(this.allSalesTicker).toBeVisible();
+    }
+
     async verifyNeedHelpHeading(): Promise<void> {
         await expect(this.needHelpHeading).toBeVisible();
+    }
+
+    async verifyJoinCommunityButton(): Promise<void> {
+        await expect(this.joinCommunityButton).toBeVisible();
+    }
+
+    async verifyCategoryLinksCount(minCount: number): Promise<void> {
+        const count = await this.categoryLinks.count();
+        expect(count).toBeGreaterThanOrEqual(minCount);
     }
 
     async clickLogo(): Promise<void> {
@@ -60,7 +79,7 @@ export class HeaderPage {
     }
 
     async clickMyAccount(): Promise<void> {
-        await this.myAccountLink.click();
+        await this.accountIcon.click();
     }
 
     async clickWishlist(): Promise<void> {

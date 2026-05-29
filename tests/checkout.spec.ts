@@ -112,7 +112,7 @@ test.describe('Order Summary', () => {
     await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
     const mgr = new CheckoutManager(page);
     await mgr.getCheckoutPage().navigateToCheckout();
-    await expect(mgr.getCheckoutPage().taxInSummary).toBeVisible();
+    await expect(mgr.getCheckoutPage().taxRow).toBeVisible();
   });
 
   test('TC-CHK-020: Cart summary shows Total', async ({ page }) => {
@@ -120,7 +120,7 @@ test.describe('Order Summary', () => {
     await auth.getLoginPage().login(authData.validUser.username, authData.validUser.password);
     const mgr = new CheckoutManager(page);
     await mgr.getCheckoutPage().navigateToCheckout();
-    await expect(mgr.getCheckoutPage().totalInSummary).toBeVisible();
+    await expect(mgr.getCheckoutPage().totalRow).toBeVisible();
   });
 
   test('TC-CHK-021: Promo code field visible on checkout', async ({ page }) => {

@@ -9,14 +9,14 @@ export class ShippingConsentPage {
 
     constructor(page: Page) {
         this.page = page;
-        this.agreementHeading    = page.getByRole('heading', { name: /Shipping/i }).or(page.getByRole('heading', { name: /Agreement/i })).first();
-        this.consentFormSection  = page.getByText(/Consent Form/i).first();
-        this.agreementListItems  = page.locator('ul li, ol li').first();
-        this.acceptButton        = page.getByRole('button', { name: /Accept/i });
+        this.agreementHeading   = page.getByText(/Shipping Consent|Consent Agreement|Agreement/i).first();
+        this.consentFormSection = page.getByText(/Consent Form/i).first();
+        this.agreementListItems = page.locator('ul li, ol li').first();
+        this.acceptButton       = page.getByRole('button', { name: /Accept/i }).or(page.locator('button[type="submit"]').filter({ hasText: /Accept/i })).first();
     }
 
     async navigateToShippingConsent(): Promise<void> {
-        await this.page.goto('/myaccount?tab=ShippingConsent');
+        await this.page.goto('/myaccount?tab=consent');
     }
 
     async verifyAgreementHeading(): Promise<void> {

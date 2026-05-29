@@ -6,19 +6,19 @@ export class ChangePasswordPage {
     newPasswordField: Locator;
     confirmPasswordField: Locator;
     changePasswordButton: Locator;
-    passwordToggleIcons: Locator;
+    eyeIcon: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.changePasswordHeading = page.getByRole('heading', { name: /Change Password/i });
-        this.newPasswordField      = page.getByPlaceholder(/New Password/i).or(page.locator('input[name="new_password"]'));
-        this.confirmPasswordField  = page.getByPlaceholder(/Confirm New Password/i).or(page.locator('input[name="confirm_password"]'));
-        this.changePasswordButton  = page.getByRole('button', { name: /Change Password/i });
-        this.passwordToggleIcons   = page.locator('[class*="eye"], [class*="toggle-password"], button[aria-label*="password"]');
+        this.changePasswordHeading = page.getByText(/Change Password/i).first();
+        this.newPasswordField      = page.locator('input[name="new_password"], input[placeholder*="New Password" i], input[id*="new_password"]').first();
+        this.confirmPasswordField  = page.locator('input[name="confirm_password"], input[placeholder*="Confirm" i], input[id*="confirm"]').first();
+        this.changePasswordButton  = page.locator('button[type="submit"]').filter({ hasText: /Change Password/i }).or(page.getByRole('button', { name: /Change Password/i })).first();
+        this.eyeIcon               = page.locator('.eye-icon');
     }
 
     async navigateToChangePassword(): Promise<void> {
-        await this.page.goto('/myaccount?tab=ChangePassword');
+        await this.page.goto('/myaccount?tab=changepassword');
     }
 
     async verifyChangePasswordHeading(): Promise<void> {
@@ -50,7 +50,6 @@ export class ChangePasswordPage {
     }
 
     async verifyPasswordToggleIcons(): Promise<void> {
-        const count = await this.passwordToggleIcons.count();
-        expect(count).toBeGreaterThan(0);
+        await expect(this.eyeIcon.first()).toBeVisible();
     }
 }

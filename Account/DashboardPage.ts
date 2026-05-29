@@ -6,31 +6,31 @@ export class DashboardPage {
     accountDetailsHeading: Locator;
     goldRoleText: Locator;
     myAccountHeading: Locator;
-    dashboardLink: Locator;
-    ordersLink: Locator;
-    addressLink: Locator;
-    licensesLink: Locator;
-    changePasswordLink: Locator;
-    shippingConsentLink: Locator;
-    logoutLink: Locator;
+    dashboardSidebarLink: Locator;
+    ordersSidebarLink: Locator;
+    addressSidebarLink: Locator;
+    wishlistSidebarLink: Locator;
+    changePasswordSidebarLink: Locator;
+    shippingConsentSidebarLink: Locator;
+    logoutButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.accountNumberText    = page.getByText('370460');
-        this.accountDetailsHeading = page.getByRole('heading', { name: 'Account details' });
-        this.goldRoleText         = page.getByText('Gold');
-        this.myAccountHeading     = page.getByText('MY ACCOUNT');
-        this.dashboardLink        = page.getByRole('link', { name: /Dashboard/i });
-        this.ordersLink           = page.getByRole('link', { name: /Orders/i });
-        this.addressLink          = page.getByRole('link', { name: /Addresses/i });
-        this.licensesLink         = page.getByRole('link', { name: /Licenses/i });
-        this.changePasswordLink   = page.getByRole('link', { name: /Change Password/i });
-        this.shippingConsentLink  = page.getByRole('link', { name: /Shipping Consent/i });
-        this.logoutLink           = page.getByRole('link', { name: /Logout/i });
+        this.accountNumberText         = page.getByText('370460');
+        this.accountDetailsHeading     = page.getByText('Account details');
+        this.goldRoleText              = page.getByText('Gold');
+        this.myAccountHeading          = page.getByText('MY ACCOUNT');
+        this.dashboardSidebarLink      = page.locator('a[href*="tab=dashboard"], [class*="sidebar"] a').filter({ hasText: 'Dashboard' }).first();
+        this.ordersSidebarLink         = page.locator('a[href*="tab=Orders"], [class*="sidebar"] a').filter({ hasText: 'Orders' }).first();
+        this.addressSidebarLink        = page.locator('a[href*="tab=address"], [class*="sidebar"] a').filter({ hasText: 'Address' }).first();
+        this.wishlistSidebarLink       = page.locator('a[href*="tab=wishlist"], [class*="sidebar"] a').filter({ hasText: 'Wishlist' }).first();
+        this.changePasswordSidebarLink = page.locator('a[href*="tab=changepassword"], [class*="sidebar"] a').filter({ hasText: /Change Password/i }).first();
+        this.shippingConsentSidebarLink = page.locator('a[href*="tab=consent"], [class*="sidebar"] a').filter({ hasText: /Shipping Consent|Consent/i }).first();
+        this.logoutButton              = page.getByRole('button', { name: /Logout/i }).or(page.locator('[variant="outline-danger"]')).first();
     }
 
     async navigateToDashboard(): Promise<void> {
-        await this.page.goto('/myaccount');
+        await this.page.goto('/myaccount?tab=dashboard');
     }
 
     async verifyAccountNumber(): Promise<void> {
@@ -50,36 +50,32 @@ export class DashboardPage {
     }
 
     async verifyAllSidebarLinks(): Promise<void> {
-        await expect(this.dashboardLink).toBeVisible();
-        await expect(this.ordersLink).toBeVisible();
-        await expect(this.addressLink).toBeVisible();
-        await expect(this.licensesLink).toBeVisible();
-        await expect(this.changePasswordLink).toBeVisible();
-        await expect(this.shippingConsentLink).toBeVisible();
-        await expect(this.logoutLink).toBeVisible();
+        await expect(this.dashboardSidebarLink).toBeVisible();
+        await expect(this.ordersSidebarLink).toBeVisible();
+        await expect(this.addressSidebarLink).toBeVisible();
+        await expect(this.wishlistSidebarLink).toBeVisible();
+        await expect(this.changePasswordSidebarLink).toBeVisible();
+        await expect(this.shippingConsentSidebarLink).toBeVisible();
+        await expect(this.logoutButton).toBeVisible();
     }
 
     async clickOrders(): Promise<void> {
-        await this.ordersLink.click();
+        await this.ordersSidebarLink.click();
     }
 
     async clickAddresses(): Promise<void> {
-        await this.addressLink.click();
-    }
-
-    async clickLicenses(): Promise<void> {
-        await this.licensesLink.click();
+        await this.addressSidebarLink.click();
     }
 
     async clickChangePassword(): Promise<void> {
-        await this.changePasswordLink.click();
+        await this.changePasswordSidebarLink.click();
     }
 
     async clickShippingConsent(): Promise<void> {
-        await this.shippingConsentLink.click();
+        await this.shippingConsentSidebarLink.click();
     }
 
     async clickLogout(): Promise<void> {
-        await this.logoutLink.click();
+        await this.logoutButton.click();
     }
 }
